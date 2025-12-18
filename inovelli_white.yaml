@@ -1,0 +1,579 @@
+blueprint:
+  name: Inovelli White Matter Switch Setup + Dimming
+  description: >
+    Inovelli Matter dimmer tap/hold automation with optional default
+    on/off and dimming for a target light or light group.
+
+    Default dimming uses a single long transition and makes 
+    a best effort attempt to correct for network delays and lag.
+
+    Supported Models:
+      - VTM31-SN
+      - VTM35-SN
+
+    Version 1.1 (time-based dimming)
+  domain: automation
+  author: gravityrebel
+
+  input:
+    entity_config:
+      name: Button Config (event)
+      description: >
+        Go to Settings → Devices & services → Matter → your device →
+        Entities → Config (event) → Settings icon → entity_id.
+      selector:
+        entity:
+          filter:
+            - domain: event
+              device_class: button
+              integration: matter
+          multiple: false
+
+    entity_down:
+      name: Button Down (event)
+      description: >
+        Go to Settings → Devices & services → Matter → your device →
+        Entities → Down (event) → Settings icon → entity_id.
+      selector:
+        entity:
+          filter:
+            - domain: event
+              device_class: button
+              integration: matter
+          multiple: false
+
+    entity_up:
+      name: Button Up (event)
+      description: >
+        Go to Settings → Devices & services → Matter → your device →
+        Entities → Up (event) → Settings icon → entity_id.
+      selector:
+        entity:
+          filter:
+            - domain: event
+              device_class: button
+              integration: matter
+          multiple: false
+
+    up_hold_sensor:
+      name: Switch Position (Up)
+      description: >
+        Sensor that tracks the current switch position, reducing reliance on events
+      selector:
+        entity:
+          domain: sensor
+          integration: matter
+
+    down_hold_sensor:
+      name: Switch Position (Down)
+      description: >
+        Sensor that tracks the current switch position, reducing reliance on events
+      selector:
+        entity:
+          domain: sensor
+          integration: matter
+
+    target_light:
+      name: Primary light / group
+      description: >
+        Single light or light group this switch should control by default
+        (on/off/dimming). Can be a HA light group.
+      selector:
+        entity:
+          domain: light
+
+    enable_default_on_off:
+      name: Enable default On/Off on single tap
+      description: >
+        If enabled, Up 1x turns target light ON and Down 1x turns it OFF.
+        If disabled, Up 1x / Down 1x run your custom actions instead.
+      default: true
+      selector:
+        boolean: {}
+
+    enable_default_dimming:
+      name: Enable default dimming on hold
+      description: >
+        If enabled, holding Up/Down ramps the target light between its
+        current level and max/min over a single long transition and then
+        snaps to the time-correct brightness on release.
+      default: true
+      selector:
+        boolean: {}
+    
+    sync_automation:
+      name: Sync automation (optional)
+      description: >
+        Optional automation that keeps the switch LED/light in sync with the
+        target light when changes happen to the light. Meant to be used with
+        gravityrebel's companion sync automation, but can be anything. Automations
+        added here will be turned "off" prior to default dimming, and turned back "on"
+        at the end.
+      default: []
+      selector:
+        entity:
+          domain: automation
+          multiple: true
+
+    transition_time:
+      name: Transition time (seconds)
+      description: >
+        Time, in seconds, to go from current value to 100% or 1% brightness. 
+        Shorter values feel snappier; longer values give finer control.
+        Going from 1% - 100% will take the same amount of time as 50% - 100%, 
+        allowing for finer control over shorter traversals.
+      default: 4
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 0.5
+          unit_of_measurement: "s"
+          mode: slider
+
+    up1:
+      name: Up 1 (custom)
+      description: >
+        Actions when Up is pressed 1 time. Depending on the 'Default On/Off' state
+        these actions will run either in-additon too the default "On" behavior or fully replace it.
+      default: []
+      selector:
+        action: {}
+
+    down1:
+      name: Down 1 (custom)
+      description: >
+        Actions when Down is pressed 1 time. Depending on the 'Default On/Off' state
+        these actions will run either in-additon too the default "Off" behavior or fully replace it.
+      default: []
+      selector:
+        action: {}
+
+    holdUp:
+      name: Hold Up (custom)
+      description: >
+        Actions when Up is held. Depending on the 'Default Dimming' state
+        these actions will run either in-additon too the default "Hold" behavior or fully replace it.
+      default: []
+      selector:
+        action: {}
+
+    holdDown:
+      name: Hold Down (custom)
+      description: >
+        Actions when Down is held. Depending on the 'Default Dimming' state
+        these actions will run either in-additon too the default "Hold" behavior or fully replace it.
+      default: []
+      selector:
+        action: {}
+
+    up2:
+      name: Up 2
+      description: When Up is pressed 2 times
+      default: []
+      selector:
+        action: {}
+
+    down2:
+      name: Down 2
+      description: When Down is pressed 2 times
+      default: []
+      selector:
+        action: {}
+
+    up3:
+      name: Up 3
+      description: When Up is pressed 3 times
+      default: []
+      selector:
+        action: {}
+
+    down3:
+      name: Down 3
+      description: When Down is pressed 3 times
+      default: []
+      selector:
+        action: {}
+
+    up4:
+      name: Up 4
+      description: When Up is pressed 4 times
+      default: []
+      selector:
+        action: {}
+
+    down4:
+      name: Down 4
+      description: When Down is pressed 4 times
+      default: []
+      selector:
+        action: {}
+
+    up5:
+      name: Up 5
+      description: When Up is pressed 5 times
+      default: []
+      selector:
+        action: {}
+
+    down5:
+      name: Down 5
+      description: When Down is pressed 5 times
+      default: []
+      selector:
+        action: {}
+
+    config1:
+      name: Config 1
+      description: When Config is pressed 1 time
+      default: []
+      selector:
+        action: {}
+
+    config2:
+      name: Config 2
+      description: When Config is pressed 2 times
+      default: []
+      selector:
+        action: {}
+
+    config3:
+      name: Config 3
+      description: When Config is pressed 3 times
+      default: []
+      selector:
+        action: {}
+
+    config4:
+      name: Config 4
+      description: When Config is pressed 4 times
+      default: []
+      selector:
+        action: {}
+
+    config5:
+      name: Config 5
+      description: When Config is pressed 5 times
+      default: []
+      selector:
+        action: {}
+
+    configHeld:
+      name: Config Held
+      description: When Config is held
+      default: []
+      selector:
+        action: {}
+
+    configReleased:
+      name: Config Released
+      description: When Config is released
+      default: []
+      selector:
+        action: {}
+
+mode: single
+max_exceeded: silent
+
+trigger:
+  # Event entities for taps / long_press / config
+  - platform: state
+    entity_id: !input entity_up
+    not_from:
+      - unknown
+      - unavailable
+    id: up_event
+
+  - platform: state
+    entity_id: !input entity_down
+    not_from:
+      - unknown
+      - unavailable
+    id: down_event
+
+  - platform: state
+    entity_id: !input entity_config
+    not_from:
+      - unknown
+      - unavailable
+    id: config_event
+
+variables:
+  trig_id: "{{ trigger.id | default('') }}"
+  event_type: "{{ trigger.to_state.attributes.event_type | default('') }}"
+
+  entity_up: !input entity_up
+  entity_down: !input entity_down
+
+  up_hold_sensor: !input up_hold_sensor
+  down_hold_sensor: !input down_hold_sensor
+
+  enable_default_on_off: !input enable_default_on_off
+  enable_default_dimming: !input enable_default_dimming
+  transition_time: !input transition_time
+
+  # Entity id string of the primary light/group
+  target_light_entity: !input target_light
+
+  sync_automation: !input sync_automation
+
+condition: []
+
+action:
+  - choose:
+
+      # ===== UP 1x =====
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'up_event' and event_type == 'multi_press_1' }}
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ enable_default_on_off }}"
+                sequence:
+                  - service: light.turn_on
+                    target:
+                      entity_id: !input target_light
+            default: []
+          - alias: "Up 1 custom action"
+            sequence: !input up1
+
+      # ===== DOWN 1x =====
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'down_event' and event_type == 'multi_press_1' }}
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ enable_default_on_off }}"
+                sequence:
+                  - service: light.turn_off
+                    target:
+                      entity_id: !input target_light
+            default: []
+          - alias: "Down 1 custom action"
+            sequence: !input down1
+
+      # ===== UP held: long_press, time-based transition to 100%, snap on release =====
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'up_event' and event_type == 'long_press' }}
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ enable_default_dimming }}"
+                sequence:
+                  # Disable Sync Automation if Specified
+                  - service: automation.turn_off
+                    target:
+                      entity_id: !input sync_automation
+                    data:
+                      stop_actions: true
+
+                  # Capture start timestamp and starting brightness (as %)
+                  - variables:
+                      up_start_ts: "{{ as_timestamp(now()) }}"
+                      up_start_pct: >
+                        {{ (state_attr(target_light_entity, 'brightness') | int(0) * 100 / 255) | round(0) | int | clamp(1, 100) }}
+
+                  # Kick off a single long transition to 100%
+                  - service: light.turn_on
+                    target:
+                      entity_id: !input target_light
+                    data:
+                      brightness_pct: 100
+                      transition: "{{ transition_time }}"
+
+                  # Wait until hold finishes (sensor 0 or long_release) or ramp fully completes
+                  - wait_for_trigger:
+                      - platform: state
+                        entity_id: !input up_hold_sensor
+                        to: "0"
+                      - platform: template
+                        value_template: >
+                          {{ state_attr(entity_up, 'event_type') == 'long_release' }}
+                    timeout:
+                      seconds: "{{ transition_time }}"
+                    continue_on_timeout: true
+
+                  # Snap bulbs to the mathematically correct brightness at release
+                  - service: light.turn_on
+                    target:
+                      entity_id: !input target_light
+                    data:
+                      brightness_pct: >
+                        {% set elapsed = (as_timestamp(now()) - up_start_ts) | float(0) %}
+                        {% set frac = (elapsed / transition_time) | clamp(0, 1) %}
+                        {% set pct = up_start_pct + frac * (100 - up_start_pct) %}
+                        {{ pct | round(0) | int | clamp(1, 100) }}
+                      transition: 0
+                  - service: automation.turn_on
+                    target:
+                      entity_id: !input sync_automation
+            default: []
+          - alias: "Hold Up custom action"
+            sequence: !input holdUp
+              
+
+      # ===== DOWN held: long_press, time-based transition toward minimum, snap on release =====
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'down_event' and event_type == 'long_press' }}
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ enable_default_dimming }}"
+                sequence:
+                  # Capture start timestamp and starting brightness (as %)
+                  - variables:
+                      down_start_ts: "{{ as_timestamp(now()) }}"
+                      down_start_pct: >
+                        {{ (state_attr(target_light_entity, 'brightness') | int(0) * 100 / 255) | round(0) | int | clamp(1, 100) }}
+                  
+                  # Turns off Sync Automation (if specified)
+                  - service: automation.turn_off
+                    target:
+                      entity_id: !input sync_automation
+                    data:
+                      stop_actions: true
+
+                  # Kick off a single long transition down toward ~1%
+                  - service: light.turn_on
+                    target:
+                      entity_id: !input target_light
+                    data:
+                      brightness_pct: 1
+                      transition: "{{ transition_time }}"
+
+                  # Wait until hold finishes (sensor 0 or long_release) or transition fully completes
+                  - wait_for_trigger:
+                      - platform: state
+                        entity_id: !input down_hold_sensor
+                        to: "0"
+                      - platform: template
+                        value_template: >
+                          {{ state_attr(entity_down, 'event_type') == 'long_release' }}
+                    timeout:
+                      seconds: "{{ transition_time }}"
+                    continue_on_timeout: true
+
+                  # Snap bulbs to the mathematically correct brightness along the downward ramp
+                  - service: light.turn_on
+                    target:
+                      entity_id: !input target_light
+                    data:
+                      brightness_pct: >
+                        {% set elapsed = (as_timestamp(now()) - down_start_ts) | float(0) %}
+                        {% set frac = (elapsed / transition_time) | clamp(0, 1) %}
+                        {% set pct = down_start_pct - frac * (down_start_pct - 1) %}
+                        {{ pct | round(0) | int | clamp(1, 100) }}
+                      transition: 0
+                
+                  # Turns back on sync automation (if specified)
+                  - service: automation.turn_on
+                    target:
+                      entity_id: !input sync_automation
+            default: []
+          - alias: "Hold Down custom action"
+            sequence: !input holdDown
+
+      # ===== UP multi-taps > 1 =====
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'up_event' and event_type == 'multi_press_2' }}
+        sequence: !input up2
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'up_event' and event_type == 'multi_press_3' }}
+        sequence: !input up3
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'up_event' and event_type == 'multi_press_4' }}
+        sequence: !input up4
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'up_event' and event_type == 'multi_press_5' }}
+        sequence: !input up5
+
+      # ===== DOWN multi-taps > 1 =====
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'down_event' and event_type == 'multi_press_2' }}
+        sequence: !input down2
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'down_event' and event_type == 'multi_press_3' }}
+        sequence: !input down3
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'down_event' and event_type == 'multi_press_4' }}
+        sequence: !input down4
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'down_event' and event_type == 'multi_press_5' }}
+        sequence: !input down5
+
+      # ===== CONFIG button =====
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'config_event' and event_type == 'multi_press_1' }}
+        sequence: !input config1
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'config_event' and event_type == 'multi_press_2' }}
+        sequence: !input config2
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'config_event' and event_type == 'multi_press_3' }}
+        sequence: !input config3
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'config_event' and event_type == 'multi_press_4' }}
+        sequence: !input config4
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'config_event' and event_type == 'multi_press_5' }}
+        sequence: !input config5
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'config_event' and event_type == 'long_press' }}
+        sequence: !input configHeld
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ trig_id == 'config_event' and event_type == 'long_release' }}
+        sequence: !input configReleased
